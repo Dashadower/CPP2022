@@ -1,9 +1,9 @@
+# ifndef GAMESTATE
+# define GAMESTATE
+
 #include <iostream>
 #include "constants.h"
 #include <vector>
-
-# ifndef GAMESTATE
-# define GAMESTATE
 
 class GameState{
   private:

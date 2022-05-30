@@ -1,11 +1,11 @@
+# ifndef RENDER
+# define RENDER
+
 #include <iostream>
 #include <ncurses.h>
 
 #include "game_state.h"
 #include "constants.h"
-
-# ifndef RENDER
-# define RENDER
 
 class Render{
   public:
