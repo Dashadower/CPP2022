@@ -17,7 +17,8 @@ class Render{
     //cbreak();
     //noecho();
     curs_set(0);  // hide cursor
-    start_color();
+    start_color(); // initialize curses colors
+    keypad(stdscr, TRUE); // allow special key detection
 
     int map_width = gs->get_width() * map_scale, map_height = gs->get_height() * (map_scale / 2);
 
@@ -80,7 +81,7 @@ class Render{
     }
   };
 
-  void draw_map_test(){
+  void draw_map_test() {
     int color = 1;
     for(int y = 0; y < gs->get_height(); y++){
       for(int x = 0; x < gs->get_width(); x++){
