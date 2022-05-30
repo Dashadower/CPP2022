@@ -5,7 +5,7 @@
 #include "render.h"
 #include "constants.h"
 
-#define TICK 2
+#define TICK 1
 
 int main(void){
   GameState gs(25, 25);

@@ -87,7 +87,9 @@ class GameState{
     }
 
     void set_direction(int d){
-      if (direction != d) direction = d;
+      if (direction == d) return;
+      if (direction % 2 == d % 2) return;
+      direction = d;
     }
 
     void print_map() const {
