@@ -1,7 +1,7 @@
 #include <iostream>
 #include <ncurses.h>
 
-#include "GameState.h"
+#include "game_state.h"
 #include "render.h"
 #include "constants.h"
 
