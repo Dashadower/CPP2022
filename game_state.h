@@ -6,19 +6,34 @@
 #include <vector>
 
 class GameState{
+  /*
+  GameState 클래스는 게임 상태를 저장하고 있습니다. 현재 뱀이 어디에 있는지, 아이템들은 어디에 
+  있는지 등을 2차원 배열을 통해 표현합니다. 
+  이와 더불어 뱀을 이동시키거나 꼬리를 추가할 때, 뱀의 현재 위치를 vector을 통해 표현하여
+  손쉽게 구현이 가능합니다.
+  */
   private:
-    int width, height;
-    int **game_map;
-    int direction;
-    std::vector<std::pair<int, int>> snake; // snake (y, x)
+    int width, height; // 게임 맵의 가로,세로 길이
+    int **game_map; // game map 2차원 배열
+    int direction;  // 뱀의 현재 진행 방향
+    std::vector<std::pair<int, int>> snake; // 뱀의 현재 위치 0번째 값이 머리입니다.
+    // pair는 <y축, x축> index를 담고 있습니다.
 
   public:
     GameState(int width, int height) : width(width), height(height) {
+
+      // 생성자 함수는 두개의 인자를 받으며, 각각 게임 맵의 가로, 세로 길이를 나타냅니다.
+
+      // 게임 맵의 크기가 정해지면, 2차원 배열을 동적으로 생성합니다.
       game_map = new int *[height];
       for(int i = 0; i < height; i++){
         game_map[i] = new int[width];
       }
+
+      // 기본 맵을 세팅합니다.
       reset_map();
+
+      //이후 뱀의 초기 위치 및 크기를 정해줍니다. (맵의 정가운데)
       snake.push_back(std::make_pair(height / 2, width / 2));
       snake.push_back(std::make_pair(height / 2, width / 2 + 1));
       snake.push_back(std::make_pair(height / 2, width / 2 + 2));
@@ -26,15 +41,18 @@ class GameState{
     };
 
     void reset_map(){
-      // write empty and walls into game_map
-      // reset array to 0
+      // 게임을 진행하는 동안 모서리와 벽의 위치는 변하지 않습니다.
+      // 이처럼 게임 로직과 관계없이 일정한 요소들을 저장하여 게임 상태를 나타내는 2차원 배열의
+      // 바탕이 되게끔 합니다.
+
+      // 모든 타일을 빈칸으로 초기화
       for(int x = 1; x < width; x++){
         for(int y = 1; y < height; y++){
           game_map[y][x] = 0;
         }
       }
 
-      // create walls
+      // 테두리를 따라서 벽 생성
       for(int x = 0; x < width; x++){
         game_map[0][x] = 1;
         game_map[height - 1][x] = WALL;
@@ -44,7 +62,7 @@ class GameState{
         game_map[y][width - 1] = WALL;
       }
 
-      // create corners
+      // 모서리 4개 생성
       game_map[0][0] = IMMUNE_WALL;
       game_map[0][width - 1] = IMMUNE_WALL;
       game_map[height - 1][0] = IMMUNE_WALL;
@@ -52,6 +70,11 @@ class GameState{
     }
 
     void tick(){
+      // 게임은 일정 시간마다 뱀의 위치가 움직이게끔 설정해야 함. 
+      // tick()함수는 현재 상태에서 뱀의 방향에 따라 한칸 전진하게끔 만들어줌.
+      // 구현 방법은:
+      // 1. 현재 뱀의 머리 앞에 새로운 칸 추가
+      // 2. 뱀의 마지막 칸 삭제
       reset_map();
 
       // update snake position
@@ -74,9 +97,11 @@ class GameState{
         snake.insert(snake.begin(), std::make_pair(head.first, head.second + 1));
         break;
       }
-      snake.pop_back(); // remove tail
+      snake.pop_back(); // 마지막 값 제거
 
-      // actuate new snake position to map
+      // 현재 뱀의 위치를 순서대로 나타내는 vector snake가 있을때, snake[0]이 머리가 되고,
+      // snake[1] 부터 마지막 값은 몸통이 됩니다. iterator를 통해 snake의 값을 읽고
+      // 게임 상태배열에 기록
        std::vector<std::pair<int, int>>::iterator it = snake.begin();
        game_map[it->first][it->second] = SNAKE_HEAD;
        it++;
@@ -87,12 +112,15 @@ class GameState{
     }
 
     void set_direction(int d){
+      // 사용자로부터 새로운 방향 d를 입력받았을때, 만약 새로운 방향이 현재 방향의 반대가 아니라면
+      // 새로운 방향으로 설정
       if (direction == d) return;
       if (direction % 2 == d % 2) return;
       direction = d;
     }
 
     void print_map() const {
+      // 디버깅용 함수이며, ncurses없이 2차원 게임 상태배열을 출력
       for(int i = 0; i < height; i++){
         for(int j = 0; j < width; j++){
           std::cout << game_map[i][j];
@@ -102,14 +130,18 @@ class GameState{
     }
 
     int get_width() const {
+      // width는 private 변수이기에 함수로 노출시킵니다.
       return width;
     }
 
     int get_height() const {
+      // height private 변수이기에 함수로 노출시킵니다.
       return height;
     }
 
     int get_coord(int row, int col) const {
+      // game_mape 2차원 배열을 private로 선언하였기에 직접 인덱싱을 하지 않고 함수를 통해
+      // 값을 설정하게끔 만들어 줍니다.
       return game_map[row][col];
     }
 };
