@@ -41,7 +41,7 @@ class Render{
       init_pair(WALL + 1, COLOR_BLACK, COLOR_BLACK);
       init_pair(EMPTY + 1, COLOR_WHITE, COLOR_WHITE);
       init_pair(SNAKE_BODY + 1, COLOR_YELLOW, COLOR_YELLOW);
-      init_pair(SNAKE_HEAD + 1, COLOR_BLACK, COLOR_BLACK);
+      init_pair(SNAKE_HEAD + 1, COLOR_MAGENTA, COLOR_MAGENTA);
 
       wbkgd(stdscr, COLOR_PAIR(EMPTY + 1));
       // window의 배경 색 설정 (흰색)
