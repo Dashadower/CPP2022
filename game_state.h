@@ -3,14 +3,15 @@
 
 #include <iostream>
 #include "constants.h"
+#include "game_item.h"
 #include <vector>
 #include <deque>
 #include <time.h>
 
 class GameState{
   /*
-  GameState 클래스는 게임 상태를 저장하고 있습니다. 현재 뱀이 어디에 있는지, 아이템들은 어디에 
-  있는지 등을 2차원 배열을 통해 표현합니다. 
+  GameState 클래스는 게임 상태를 저장하고 있습니다. 현재 뱀이 어디에 있는지, 아이템들은 어디에
+  있는지 등을 2차원 배열을 통해 표현합니다.
   이와 더불어 뱀을 이동시키거나 꼬리를 추가할 때, 뱀의 현재 위치를 vector을 통해 표현하여
   손쉽게 구현이 가능합니다.
   */
@@ -18,14 +19,14 @@ class GameState{
     int width, height; // 게임 맵의 가로,세로 길이
     int **game_map; // game map 2차원 배열
     int direction;  // 뱀의 현재 진행 방향
-    
+
     std::deque<std::pair<int, int>> snake; // 뱀의 현재 위치 0번째 값이 머리입니다.
 
     int remain_time_to_generate_growth_item = rand() % 40 + 10;
-    std::vector<std::vector<int>> growth_items;
+    std::vector<GameItem> growth_items;
 
     int remain_time_to_generate_poison_item = rand() % 40 + 10;
-    std::vector<std::vector<int>> poison_items;
+    std::vector<GameItem> poison_items;
     // pair는 <y축, x축> index를 담고 있습니다.
 
   public:
@@ -80,8 +81,8 @@ class GameState{
     bool tick() {
       for (auto i = 0; i < growth_items.size(); i++) {
         if (
-          snake[0].first == growth_items[i][0]
-          && snake[0].second == growth_items[i][1]
+          snake[0].first == growth_items[i].x
+          && snake[0].second == growth_items[i].y
         ) {
           std::pair<int, int> new_head;
           new_head.first = snake[0].first;
@@ -90,7 +91,7 @@ class GameState{
              case UP:
               new_head.first--;
               break;
-            
+
             case DOWN:
               new_head.first++;
               break;
@@ -104,21 +105,21 @@ class GameState{
               break;
           }
           snake.push_front(new_head);
-          
+
           growth_items.erase(growth_items.begin() + i);
           continue;
         }
-        
-        growth_items[i][2]--;
-        if (growth_items[i][2] == 0) {
+
+        growth_items[i].remain_time--;
+        if (growth_items[i].remain_time == 0) {
           growth_items.erase(growth_items.begin() + i);
         }
       }
 
       for (auto i = 0; i < poison_items.size(); i++) {
         if (
-          snake[0].first == poison_items[i][0]
-          && snake[0].second == poison_items[i][1]
+          snake[0].first == poison_items[i].x
+          && snake[0].second == poison_items[i].y
         ) {
           if (snake.size() == 3) {
             return false;
@@ -130,13 +131,13 @@ class GameState{
           continue;
         }
 
-        poison_items[i][2]--;
-        if (poison_items[i][2] == 0) {
+        poison_items[i].remain_time--;
+        if (poison_items[i].remain_time == 0) {
           poison_items.erase(poison_items.begin() + i);
         }
       }
 
-      // 게임은 일정 시간마다 뱀의 위치가 움직이게끔 설정해야 함. 
+      // 게임은 일정 시간마다 뱀의 위치가 움직이게끔 설정해야 함.
       // tick()함수는 현재 상태에서 뱀의 방향에 따라 한칸 전진하게끔 만들어줌.
       // 구현 방법은:
       // 1. 현재 뱀의 머리 앞에 새로운 칸 추가
@@ -146,12 +147,12 @@ class GameState{
       // Appear items
       for (auto it = growth_items.begin(); it != growth_items.end(); it++) {
         auto growth_item = *it;
-        game_map[growth_item[0]][growth_item[1]] = GROWTH_ITEM;
+        game_map[growth_item.x][growth_item.y] = GROWTH_ITEM;
       }
 
       for (auto it = poison_items.begin(); it != poison_items.end(); it++) {
         auto poison_item = *it;
-        game_map[poison_item[0]][poison_item[1]] = POISON_ITEM;
+        game_map[poison_item.x][poison_item.y] = POISON_ITEM;
       }
 
       // update snake position
@@ -161,7 +162,7 @@ class GameState{
       case UP:
         snake.insert(snake.begin(), std::make_pair(head.first - 1, head.second));
         break;
-      
+
       case DOWN:
         snake.insert(snake.begin(), std::make_pair(head.first + 1, head.second));
         break;
@@ -190,7 +191,7 @@ class GameState{
       remain_time_to_generate_growth_item--;
       if (remain_time_to_generate_growth_item == 0) {
         if (growth_items.size() < 3) {
-          std::vector<int> growth_item;
+          GameItem growth_item;
 
           int x = rand() % 23 + 1;
           int y = rand() % 23 + 1;
@@ -199,9 +200,9 @@ class GameState{
             y = rand() % 23 + 1;
           }
 
-          growth_item.push_back(x);
-          growth_item.push_back(y);
-          growth_item.push_back(50);
+          growth_item.x = x;
+          growth_item.y = y;
+          growth_item.remain_time = 50;
 
           growth_items.push_back(growth_item);
         }
@@ -212,7 +213,7 @@ class GameState{
       remain_time_to_generate_poison_item--;
       if (remain_time_to_generate_poison_item == 0) {
         if (poison_items.size() < 3) {
-          std::vector<int> poison_item;
+          GameItem poison_item;
 
           int x = rand() % 23 + 1;
           int y = rand() % 23 + 1;
@@ -221,9 +222,9 @@ class GameState{
             y = rand() % 23 + 1;
           }
 
-          poison_item.push_back(x);
-          poison_item.push_back(y);
-          poison_item.push_back(50);
+          poison_item.x = x;
+          poison_item.y = y;
+          poison_item.remain_time = 50;
 
           poison_items.push_back(poison_item);
         }
