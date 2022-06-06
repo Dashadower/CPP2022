@@ -4,6 +4,8 @@
 #include <iostream>
 #include "constants.h"
 #include <vector>
+#include <deque>
+#include <time.h>
 
 class GameState{
   /*
@@ -16,12 +18,18 @@ class GameState{
     int width, height; // 게임 맵의 가로,세로 길이
     int **game_map; // game map 2차원 배열
     int direction;  // 뱀의 현재 진행 방향
-    std::vector<std::pair<int, int>> snake; // 뱀의 현재 위치 0번째 값이 머리입니다.
+    
+    std::deque<std::pair<int, int>> snake; // 뱀의 현재 위치 0번째 값이 머리입니다.
+
+    int remain_time_to_generate_growth_item = rand() % 40 + 10;
+    std::vector<std::vector<int>> growth_items;
+
+    int remain_time_to_generate_poison_item = rand() % 40 + 10;
+    std::vector<std::vector<int>> poison_items;
     // pair는 <y축, x축> index를 담고 있습니다.
 
   public:
     GameState(int width, int height) : width(width), height(height) {
-
       // 생성자 함수는 두개의 인자를 받으며, 각각 게임 맵의 가로, 세로 길이를 나타냅니다.
 
       // 게임 맵의 크기가 정해지면, 2차원 배열을 동적으로 생성합니다.
@@ -69,13 +77,82 @@ class GameState{
       game_map[height - 1][width - 1] = IMMUNE_WALL;
     }
 
-    void tick(){
+    bool tick() {
+      for (auto i = 0; i < growth_items.size(); i++) {
+        if (
+          snake[0].first == growth_items[i][0]
+          && snake[0].second == growth_items[i][1]
+        ) {
+          std::pair<int, int> new_head;
+          new_head.first = snake[0].first;
+          new_head.second = snake[0].second;
+          switch (direction) {
+             case UP:
+              new_head.first--;
+              break;
+            
+            case DOWN:
+              new_head.first++;
+              break;
+
+            case LEFT:
+              new_head.second--;
+              break;
+
+            case RIGHT:
+              new_head.second++;
+              break;
+          }
+          snake.push_front(new_head);
+          
+          growth_items.erase(growth_items.begin() + i);
+          continue;
+        }
+        
+        growth_items[i][2]--;
+        if (growth_items[i][2] == 0) {
+          growth_items.erase(growth_items.begin() + i);
+        }
+      }
+
+      for (auto i = 0; i < poison_items.size(); i++) {
+        if (
+          snake[0].first == poison_items[i][0]
+          && snake[0].second == poison_items[i][1]
+        ) {
+          if (snake.size() == 3) {
+            return false;
+          }
+
+          snake.pop_back();
+
+          poison_items.erase(poison_items.begin() + i);
+          continue;
+        }
+
+        poison_items[i][2]--;
+        if (poison_items[i][2] == 0) {
+          poison_items.erase(poison_items.begin() + i);
+        }
+      }
+
       // 게임은 일정 시간마다 뱀의 위치가 움직이게끔 설정해야 함. 
       // tick()함수는 현재 상태에서 뱀의 방향에 따라 한칸 전진하게끔 만들어줌.
       // 구현 방법은:
       // 1. 현재 뱀의 머리 앞에 새로운 칸 추가
       // 2. 뱀의 마지막 칸 삭제
       reset_map();
+
+      // Appear items
+      for (auto it = growth_items.begin(); it != growth_items.end(); it++) {
+        auto growth_item = *it;
+        game_map[growth_item[0]][growth_item[1]] = GROWTH_ITEM;
+      }
+
+      for (auto it = poison_items.begin(); it != poison_items.end(); it++) {
+        auto poison_item = *it;
+        game_map[poison_item[0]][poison_item[1]] = POISON_ITEM;
+      }
 
       // update snake position
       std::pair<int, int> head = snake.front();
@@ -99,16 +176,62 @@ class GameState{
       }
       snake.pop_back(); // 마지막 값 제거
 
-      // 현재 뱀의 위치를 순서대로 나타내는 vector snake가 있을때, snake[0]이 머리가 되고,
+      // 현재 뱀의 위치를 순서대로 나타내는 snake가 있을때, snake[0]이 머리가 되고,
       // snake[1] 부터 마지막 값은 몸통이 됩니다. iterator를 통해 snake의 값을 읽고
       // 게임 상태배열에 기록
-       std::vector<std::pair<int, int>>::iterator it = snake.begin();
-       game_map[it->first][it->second] = SNAKE_HEAD;
-       it++;
-       while(it != snake.end()){
-         game_map[it->first][it->second] = SNAKE_BODY;
-         it++;
-       }
+      std::deque<std::pair<int, int>>::iterator it = snake.begin();
+      game_map[it->first][it->second] = SNAKE_HEAD;
+      it++;
+      while(it != snake.end()) {
+        game_map[it->first][it->second] = SNAKE_BODY;
+        it++;
+      }
+
+      remain_time_to_generate_growth_item--;
+      if (remain_time_to_generate_growth_item == 0) {
+        if (growth_items.size() < 3) {
+          std::vector<int> growth_item;
+
+          int x = rand() % 23 + 1;
+          int y = rand() % 23 + 1;
+          while (game_map[x][y] != 0) {
+            x = rand() % 23 + 1;
+            y = rand() % 23 + 1;
+          }
+
+          growth_item.push_back(x);
+          growth_item.push_back(y);
+          growth_item.push_back(50);
+
+          growth_items.push_back(growth_item);
+        }
+
+        remain_time_to_generate_growth_item = rand() % 40 + 10;
+      }
+
+      remain_time_to_generate_poison_item--;
+      if (remain_time_to_generate_poison_item == 0) {
+        if (poison_items.size() < 3) {
+          std::vector<int> poison_item;
+
+          int x = rand() % 23 + 1;
+          int y = rand() % 23 + 1;
+          while (game_map[x][y] != 0) {
+            x = rand() % 23 + 1;
+            y = rand() % 23 + 1;
+          }
+
+          poison_item.push_back(x);
+          poison_item.push_back(y);
+          poison_item.push_back(50);
+
+          poison_items.push_back(poison_item);
+        }
+
+        remain_time_to_generate_poison_item = rand() % 40 + 10;
+      }
+
+      return true;
     }
 
     void set_direction(int d){

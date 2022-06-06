@@ -7,12 +7,16 @@
 
 #define TICK 1
 
-int main(void){
+int main(void) {
   GameState gs(25, 25);
   Render render(&gs, 2);
   bool keep_running = true;
-  while(keep_running){
-    gs.tick();
+  while(keep_running) {
+    bool tickResult = gs.tick();
+    if (tickResult == false) {
+      keep_running = false;
+      continue;
+    };
     render.draw_map();
     halfdelay(TICK);
     int key = getch();
