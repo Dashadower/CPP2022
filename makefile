@@ -1,6 +1,6 @@
 
 CXX=g++
-CXXFLAGS=-lncurses
+CXXFLAGS=-lncurses -g
 
 DEPENDS:=$(wildcard *.h)
 

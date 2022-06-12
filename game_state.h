@@ -112,6 +112,9 @@ class GameState{
               new_head.second++;
               break;
           }
+          if(new_head.first <= 0 || new_head.first >= width || new_head.second <= 0 || new_head.second > height){
+            return false;
+          }
           snake.push_front(new_head);
 
           growth_items.erase(growth_items.begin() + i);
