@@ -79,6 +79,67 @@ class GameState{
     }
 
     bool tick() {
+      // 1. Update state
+      // 1-1. update snake position
+      std::pair<int, int> head = snake.front();
+      switch (direction)
+      {
+      case UP:
+        snake.insert(snake.begin(), std::make_pair(head.first - 1, head.second));
+        break;
+
+      case DOWN:
+        snake.insert(snake.begin(), std::make_pair(head.first + 1, head.second));
+        break;
+
+      case LEFT:
+        snake.insert(snake.begin(), std::make_pair(head.first, head.second - 1));
+        break;
+
+      case RIGHT:
+        snake.insert(snake.begin(), std::make_pair(head.first, head.second + 1));
+        break;
+      }
+      snake.pop_back(); // 마지막 값 제거
+
+      // 1-2. Create items
+      remain_time_to_generate_growth_item--;
+      if (remain_time_to_generate_growth_item == 0) {
+        if (growth_items.size() < 3) {
+
+          int x = rand() % 23 + 1;
+          int y = rand() % 23 + 1;
+          while (game_map[x][y] != 0) {
+            x = rand() % 23 + 1;
+            y = rand() % 23 + 1;
+          }
+
+          growth_items.emplace_back(x, y, 50);
+        }
+
+        remain_time_to_generate_growth_item = rand() % 40 + 10;
+      }
+
+      remain_time_to_generate_poison_item--;
+      if (remain_time_to_generate_poison_item == 0) {
+        if (poison_items.size() < 3) {
+
+          int x = rand() % 23 + 1;
+          int y = rand() % 23 + 1;
+          while (game_map[x][y] != 0) {
+            x = rand() % 23 + 1;
+            y = rand() % 23 + 1;
+          }
+
+          poison_items.emplace_back(x, y, 50);
+        }
+
+        remain_time_to_generate_poison_item = rand() % 40 + 10;
+      }
+
+      //////////////////////////
+      // 2. Perform checks on updated state
+
       if (game_map[snake[0].second][snake[0].first] == IMMUNE_WALL) {
         return false;
       }
@@ -166,28 +227,6 @@ class GameState{
         game_map[poison_item.x][poison_item.y] = POISON_ITEM;
       }
 
-      // update snake position
-      std::pair<int, int> head = snake.front();
-      switch (direction)
-      {
-      case UP:
-        snake.insert(snake.begin(), std::make_pair(head.first - 1, head.second));
-        break;
-
-      case DOWN:
-        snake.insert(snake.begin(), std::make_pair(head.first + 1, head.second));
-        break;
-
-      case LEFT:
-        snake.insert(snake.begin(), std::make_pair(head.first, head.second - 1));
-        break;
-
-      case RIGHT:
-        snake.insert(snake.begin(), std::make_pair(head.first, head.second + 1));
-        break;
-      }
-      snake.pop_back(); // 마지막 값 제거
-
       // 현재 뱀의 위치를 순서대로 나타내는 snake가 있을때, snake[0]이 머리가 되고,
       // snake[1] 부터 마지막 값은 몸통이 됩니다. iterator를 통해 snake의 값을 읽고
       // 게임 상태배열에 기록
@@ -200,40 +239,6 @@ class GameState{
         }
         game_map[it->first][it->second] = SNAKE_BODY;
         it++;
-      }
-
-      remain_time_to_generate_growth_item--;
-      if (remain_time_to_generate_growth_item == 0) {
-        if (growth_items.size() < 3) {
-
-          int x = rand() % 23 + 1;
-          int y = rand() % 23 + 1;
-          while (game_map[x][y] != 0) {
-            x = rand() % 23 + 1;
-            y = rand() % 23 + 1;
-          }
-
-          growth_items.emplace_back(x, y, 50);
-        }
-
-        remain_time_to_generate_growth_item = rand() % 40 + 10;
-      }
-
-      remain_time_to_generate_poison_item--;
-      if (remain_time_to_generate_poison_item == 0) {
-        if (poison_items.size() < 3) {
-
-          int x = rand() % 23 + 1;
-          int y = rand() % 23 + 1;
-          while (game_map[x][y] != 0) {
-            x = rand() % 23 + 1;
-            y = rand() % 23 + 1;
-          }
-
-          poison_items.emplace_back(x, y, 50);
-        }
-
-        remain_time_to_generate_poison_item = rand() % 40 + 10;
       }
 
       return true;
