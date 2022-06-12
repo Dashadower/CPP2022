@@ -79,6 +79,14 @@ class GameState{
     }
 
     bool tick() {
+      if (game_map[snake[0].second][snake[0].first] == IMMUNE_WALL) {
+        return false;
+      }
+
+      if (game_map[snake[0].second][snake[0].first] == WALL) {
+        return false;
+      }
+
       for (auto i = 0; i < growth_items.size(); i++) {
         if (
           snake[0].first == growth_items[i].x
@@ -184,6 +192,10 @@ class GameState{
       game_map[it->first][it->second] = SNAKE_HEAD;
       it++;
       while(it != snake.end()) {
+        if (it->first == snake.begin()->first && 
+            it->second == snake.begin()->second){
+              return false;
+            }
         game_map[it->first][it->second] = SNAKE_BODY;
         it++;
       }
