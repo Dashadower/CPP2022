@@ -192,10 +192,9 @@ class GameState{
       game_map[it->first][it->second] = SNAKE_HEAD;
       it++;
       while(it != snake.end()) {
-        if (it->first == snake.begin()->first && 
-            it->second == snake.begin()->second){
+        if (it->first == snake.begin()->first && it->second == snake.begin()->second){
               return false;
-            }
+        }
         game_map[it->first][it->second] = SNAKE_BODY;
         it++;
       }
