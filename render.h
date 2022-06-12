@@ -42,8 +42,8 @@ class Render{
       init_pair(EMPTY + 1, COLOR_WHITE, COLOR_WHITE);
       init_pair(SNAKE_BODY + 1, COLOR_YELLOW, COLOR_YELLOW);
       init_pair(SNAKE_HEAD + 1, COLOR_MAGENTA, COLOR_MAGENTA);
-      init_pair(GROWTH_ITEM + 1, COLOR_RED, COLOR_RED);
-      init_pair(POISON_ITEM + 1, COLOR_CYAN, COLOR_CYAN);
+      init_pair(GROWTH_ITEM + 1, COLOR_CYAN, COLOR_CYAN);
+      init_pair(POISON_ITEM + 1, COLOR_RED, COLOR_RED);
 
       wbkgd(stdscr, COLOR_PAIR(EMPTY + 1));
       // window의 배경 색 설정 (흰색)
