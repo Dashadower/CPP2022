@@ -191,7 +191,6 @@ class GameState{
       remain_time_to_generate_growth_item--;
       if (remain_time_to_generate_growth_item == 0) {
         if (growth_items.size() < 3) {
-          GameItem growth_item;
 
           int x = rand() % 23 + 1;
           int y = rand() % 23 + 1;
@@ -200,11 +199,7 @@ class GameState{
             y = rand() % 23 + 1;
           }
 
-          growth_item.x = x;
-          growth_item.y = y;
-          growth_item.remain_time = 50;
-
-          growth_items.push_back(growth_item);
+          growth_items.emplace_back(x, y, 50);
         }
 
         remain_time_to_generate_growth_item = rand() % 40 + 10;
@@ -213,7 +208,6 @@ class GameState{
       remain_time_to_generate_poison_item--;
       if (remain_time_to_generate_poison_item == 0) {
         if (poison_items.size() < 3) {
-          GameItem poison_item;
 
           int x = rand() % 23 + 1;
           int y = rand() % 23 + 1;
@@ -222,11 +216,7 @@ class GameState{
             y = rand() % 23 + 1;
           }
 
-          poison_item.x = x;
-          poison_item.y = y;
-          poison_item.remain_time = 50;
-
-          poison_items.push_back(poison_item);
+          poison_items.emplace_back(x, y, 50);
         }
 
         remain_time_to_generate_poison_item = rand() % 40 + 10;
