@@ -15,7 +15,7 @@ class Render{
 
   public:
     Render(GameState *gamestate, int map_scale) : gs(gamestate), map_scale(map_scale) {
-      // 생성자 인자는 두개이며, 첫번째 인자는 GameState클래스 포인터, 두번째 인자는 
+      // 생성자 인자는 두개이며, 첫번째 인자는 GameState클래스 포인터, 두번째 인자는
       // 게임 맵의 화면 크기를 나타내는 짝수 정수. 예를 들어 맵의 길이가 10x10인 맵을
       // 출력할 때, map_scale이 2인 경우 화면에서 10x10의 크기로, map_scale이 4인 경우
       // 20x20의 크기로 출력됨.
@@ -44,6 +44,8 @@ class Render{
       init_pair(SNAKE_HEAD + 1, COLOR_MAGENTA, COLOR_MAGENTA);
       init_pair(GROWTH_ITEM + 1, COLOR_CYAN, COLOR_CYAN);
       init_pair(POISON_ITEM + 1, COLOR_RED, COLOR_RED);
+      init_pair(GATE1 + 1, COLOR_PURPLE, COLOR_PURPLE);
+      init_pair(GATE2 + 1, COLOR_PURPLE, COLOR_PURPLE);
 
       wbkgd(stdscr, COLOR_PAIR(EMPTY + 1));
       // window의 배경 색 설정 (흰색)
@@ -75,17 +77,17 @@ class Render{
                 // 모서리(immune wall)
                 waddch(map_window, ' ' | COLOR_PAIR(IMMUNE_WALL + 1));
                 break;
-              
+
               case WALL:
                 // 벽(wall)
                 waddch(map_window, ' ' | COLOR_PAIR(WALL + 1));
                 break;
-              
+
               case EMPTY:
                 // 빈 칸(empty)
                 waddch(map_window, ' ' | COLOR_PAIR(EMPTY + 1));
                 break;
-              
+
               case SNAKE_BODY:
                 // 뱀 몸통(snake body)
                 waddch(map_window, ' ' | COLOR_PAIR(SNAKE_BODY + 1));
@@ -104,6 +106,16 @@ class Render{
               case POISON_ITEM:
                 // 독 아이템(Poison item)
                 waddch(map_window, ' ' | COLOR_PAIR(POISON_ITEM + 1));
+                break;
+
+              case GATE1:
+                // 게이트1(GATE1)
+                waddch(map_window, ' ' | COLOR_PAIR(GATE1 + 1));
+                break;
+
+              case GATE2:
+                // 게이트2(GATE2)
+                waddch(map_window, ' ' | COLOR_PAIR(GATE2 + 1));
                 break;
               }
 
