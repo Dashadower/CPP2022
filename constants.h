@@ -11,6 +11,9 @@
 #define GROWTH_ITEM 5
 #define POISON_ITEM 6
 
+#define GATE1 7
+#define GATE2 8
+
 #define UP 1
 #define LEFT 2
 #define DOWN 3
