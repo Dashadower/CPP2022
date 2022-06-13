@@ -27,7 +27,10 @@ class GameState{
 
     int remain_time_to_generate_poison_item = rand() % 40 + 10;
     std::vector<GameItem> poison_items;
-    // pair는 <y축, x축> index를 담고 있습니다.
+    // pair는 <y축, x축> index를 담고 있습니다
+
+    std::pair<int, int>> gate1 = make_pair(-1,-1);
+    std::pair<int, int>> gate2 = make_pair(-1,-1);
 
   public:
     GameState(int width, int height) : width(width), height(height) {
@@ -65,11 +68,14 @@ class GameState{
       for(int x = 0; x < width; x++){
         game_map[0][x] = 1;
         game_map[height - 1][x] = WALL;
+
       }
       for(int y = 0; y < height; y++){
         game_map[y][0] = 1;
         game_map[y][width - 1] = WALL;
       }
+
+
 
       // 모서리 4개 생성
       game_map[0][0] = IMMUNE_WALL;
@@ -109,12 +115,12 @@ class GameState{
 
           int x = rand() % 23 + 1;
           int y = rand() % 23 + 1;
-          while (game_map[x][y] != 0) {
+          while (game_map[y][x] != 0) {
             x = rand() % 23 + 1;
             y = rand() % 23 + 1;
           }
 
-          growth_items.emplace_back(x, y, 50);
+          growth_items.emplace_back(y, x, 50);
         }
 
         remain_time_to_generate_growth_item = rand() % 40 + 10;
@@ -126,16 +132,49 @@ class GameState{
 
           int x = rand() % 23 + 1;
           int y = rand() % 23 + 1;
-          while (game_map[x][y] != 0) {
+          while (game_map[y][x] != 0) {
             x = rand() % 23 + 1;
             y = rand() % 23 + 1;
           }
 
-          poison_items.emplace_back(x, y, 50);
+          poison_items.emplace_back(y, x, 50);
         }
 
         remain_time_to_generate_poison_item = rand() % 40 + 10;
       }
+
+      gate1--;
+      if (gate1 == 0) {
+        if (gate1.size() < 1) {
+
+          int x = rand() % 23 + 1;
+          int y = rand() % 23 + 1;
+          while (game_map[y][x] != 0) {
+            x = rand() % 23 + 1;
+            y = rand() % 23 + 1;
+          }
+
+          gate1.first = x;
+          gate1.second = y;
+        }
+      }
+
+      gate2--;
+      if (gate2 == 0) {
+        if (gate2.size() < 1) {
+
+          int x = rand() % 23 + 1;
+          int y = rand() % 23 + 1;
+          while (game_map[y][x] != 0) {
+            x = rand() % 23 + 1;
+            y = rand() % 23 + 1;
+          }
+
+          gate2.first = x;
+          gate2.second = y;
+        }
+      }
+
 
       //////////////////////////
       // 2. Perform checks on updated state
@@ -147,6 +186,7 @@ class GameState{
       if (game_map[snake[0].second][snake[0].first] == WALL) {
         return false;
       }
+
 
       for (auto i = 0; i < growth_items.size(); i++) {
         if (
@@ -225,6 +265,16 @@ class GameState{
       for (auto it = poison_items.begin(); it != poison_items.end(); it++) {
         auto poison_item = *it;
         game_map[poison_item.x][poison_item.y] = POISON_ITEM;
+      }
+
+      for (auto it = gate1.begin(); it != gate1.end(); it++) {
+        auto gate1 = *it;
+        game_map[gate1.y][gate1.x] = GATE1;
+      }
+
+      for (auto it = gate2.begin(); it != gate2.end(); it++) {
+        auto gate2 = *it;
+        game_map[gate2.y][gate2.x] = GATE2;
       }
 
       // 현재 뱀의 위치를 순서대로 나타내는 snake가 있을때, snake[0]이 머리가 되고,
