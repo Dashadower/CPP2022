@@ -64,6 +64,8 @@ class GameState{
       snake.push_back(std::make_pair(height / 2, width / 2 + 1));
       snake.push_back(std::make_pair(height / 2, width / 2 + 2));
       direction = LEFT;
+
+      srand(time(NULL));
     };
 
     void reset_map(){
