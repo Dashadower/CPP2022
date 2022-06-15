@@ -22,6 +22,7 @@ class Render{
       if(map_scale % 2 != 0){
         throw std::invalid_argument("map scale must be even!");
       }
+      setlocale(LC_CTYPE, "ko_KR.utf-8");
       initscr();
       curs_set(0);  // hide cursor
       start_color(); // initialize curses colors
@@ -29,9 +30,12 @@ class Render{
 
       int map_width = gs->get_width() * map_scale, map_height = gs->get_height() * (map_scale / 2);
       // map_width, map_height는 게임 맵의 가로, 세로 길이를 의미함.
-
-      map_window = newwin(map_height, map_width, 1, 1);
-      // 게임 화면을 나타내는 curses window 포인터 (클래스 변수)
+      refresh();
+      map_window = newwin(map_height, map_width, 1, 1);  // h, w, y, x
+      scoreboard_window = newwin(10, 30, 1, map_width + 5);
+      mission_window = newwin(10, 30, 15, map_width + 5);
+      box(scoreboard_window, 0, 0);
+      box(mission_window, 0, 0);
       refresh();
       // ncurses 화면 초기화
 
@@ -44,8 +48,7 @@ class Render{
       init_pair(SNAKE_HEAD + 1, COLOR_MAGENTA, COLOR_MAGENTA);
       init_pair(GROWTH_ITEM + 1, COLOR_CYAN, COLOR_CYAN);
       init_pair(POISON_ITEM + 1, COLOR_RED, COLOR_RED);
-      init_pair(GATE1 + 1, COLOR_PURPLE, COLOR_PURPLE);
-      init_pair(GATE2 + 1, COLOR_PURPLE, COLOR_PURPLE);
+      init_pair(GATE + 1, COLOR_MAGENTA, COLOR_MAGENTA);
 
       wbkgd(stdscr, COLOR_PAIR(EMPTY + 1));
       // window의 배경 색 설정 (흰색)
@@ -108,17 +111,11 @@ class Render{
                 waddch(map_window, ' ' | COLOR_PAIR(POISON_ITEM + 1));
                 break;
 
-              case GATE1:
-                // 게이트1(GATE1)
-                waddch(map_window, ' ' | COLOR_PAIR(GATE1 + 1));
-                break;
-
-              case GATE2:
-                // 게이트2(GATE2)
-                waddch(map_window, ' ' | COLOR_PAIR(GATE2 + 1));
+              case GATE:
+                // 게이트(GATE)
+                waddch(map_window, ' ' | COLOR_PAIR(GATE + 1));
                 break;
               }
-
               // ncurses에서 무언가 출력을 했을때는 꼭 refresh()를 이용하여 실제로 터미널에
               // 출력되게끔 해야함. wrefresh(map_window)는 특정 window만 갱신하게끔 만드는
               // 함수임
@@ -129,9 +126,49 @@ class Render{
       }
     };
 
+    void draw_scoreboard(){
+      std::string s;
+      mvwaddstr(scoreboard_window, 0, 1, "Score Board");
+      s = "B: " + std::to_string(gs->get_b());
+      mvwaddstr(scoreboard_window, 1, 1, s.c_str());
+      s = "+: " + std::to_string(gs->get_growth_items_used());
+      mvwaddstr(scoreboard_window, 2, 1, s.c_str());
+      s = "-: " + std::to_string(gs->get_poison_items_used());
+      mvwaddstr(scoreboard_window, 3, 1, s.c_str());
+      s = "G: " + std::to_string(gs->get_gates_used());
+      mvwaddstr(scoreboard_window, 4, 1, s.c_str());
+      wrefresh(scoreboard_window);
+    }
+
+    void draw_mission(){
+      using std::to_string;
+      std::string s;
+      s = "Misson - Level " + to_string(gs->get_current_level());
+      mvwaddstr(mission_window, 0, 1, s.c_str());
+      s = "B: " + to_string(gs->get_goal_b()) + " (" + (gs->get_b() >= gs->get_goal_b() ? "v" : " ") + ")";
+      mvwaddstr(mission_window, 1, 1, s.c_str());
+      s = "+: " + to_string(gs->get_goal_growth()) + " (" + (gs->get_growth_items_used() >= gs->get_goal_growth() ? "v" : " ") + ")";
+      mvwaddstr(mission_window, 2, 1, s.c_str());
+      s = "-: " + to_string(gs->get_goal_poison()) + " (" + (gs->get_poison_items_used() >= gs->get_goal_poison() ? "v" : " ") + ")";
+      mvwaddstr(mission_window, 3, 1, s.c_str());
+      s = "G: " + to_string(gs->get_goal_gate()) + " (" + (gs->get_gates_used() >= gs->get_goal_gate() ? "v" : " ") + ")";
+      mvwaddstr(mission_window, 4, 1, s.c_str());
+    }
+
+    void draw(){
+      draw_map();
+      draw_scoreboard();
+      draw_mission();
+      wrefresh(map_window);
+      wrefresh(scoreboard_window);
+      wrefresh(mission_window);
+    }
+
   private:
     GameState *gs; // 게임 상태를 가지고 있는 클래스
     WINDOW *map_window; // 게임 맵을 출력하는 ncurses window 포인터
+    WINDOW *scoreboard_window; // Score Board (미션 정보 설명)을 출력한는 ncurses window 포인터
+    WINDOW *mission_window; // 미션 목표 및 현재 점수를 출력하는 ncurses window
     int map_scale; // 게임 맵의 크기를 설정하는 설정값
 };
 

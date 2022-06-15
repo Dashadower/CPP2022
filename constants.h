@@ -1,6 +1,9 @@
 # ifndef CONSTANTS
 # define CONSTANTS
 
+#define GAME_WIDTH 25
+#define GAME_HEIGHT 25
+
 #define IMMUNE_WALL 2
 #define WALL 1
 
@@ -11,8 +14,7 @@
 #define GROWTH_ITEM 5
 #define POISON_ITEM 6
 
-#define GATE1 7
-#define GATE2 8
+#define GATE 7
 
 #define UP 1
 #define LEFT 2
