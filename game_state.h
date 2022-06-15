@@ -593,6 +593,10 @@ class GameState{
       return current_level->level_number;
     }
 
+    int get_game_duration_ticks() const {
+      return game_duration_ticks;
+    }
+
     bool check_goal_complete() const {
       if(get_b() >= get_goal_b() &&
          get_growth_items_used() >= get_goal_growth() &&

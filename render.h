@@ -14,7 +14,7 @@ class Render{
   */
 
   public:
-    Render(GameState *gamestate, int map_scale) : gs(gamestate), map_scale(map_scale) {
+    Render(GameState *gamestate, int map_scale, int tickrate) : gs(gamestate), map_scale(map_scale), tickrate(tickrate) {
       // 생성자 인자는 두개이며, 첫번째 인자는 GameState클래스 포인터, 두번째 인자는
       // 게임 맵의 화면 크기를 나타내는 짝수 정수. 예를 들어 맵의 길이가 10x10인 맵을
       // 출력할 때, map_scale이 2인 경우 화면에서 10x10의 크기로, map_scale이 4인 경우
@@ -164,12 +164,33 @@ class Render{
       wrefresh(mission_window);
     }
 
+    void gameover(){
+      werase(map_window);
+      refresh();
+      wrefresh(map_window);
+      std::string s;
+      mvwaddstr(map_window, 0, 1, "Game Over");
+      s = "B: " + std::to_string(gs->get_b());
+      mvwaddstr(map_window, 1, 1, s.c_str());
+      s = "+: " + std::to_string(gs->get_growth_items_used());
+      mvwaddstr(map_window, 2, 1, s.c_str());
+      s = "-: " + std::to_string(gs->get_poison_items_used());
+      mvwaddstr(map_window, 3, 1, s.c_str());
+      s = "G: " + std::to_string(gs->get_gates_used());
+      mvwaddstr(map_window, 4, 1, s.c_str());
+      s = "Game Time: " + std::to_string(gs->get_game_duration_ticks() / (10.0 * tickrate)) + " seconds";
+      mvwaddstr(map_window, 5, 1, s.c_str());
+      mvwaddstr(map_window, 6, 1, "Press Enter to exit");
+      wrefresh(map_window);
+    }
+
   private:
     GameState *gs; // 게임 상태를 가지고 있는 클래스
     WINDOW *map_window; // 게임 맵을 출력하는 ncurses window 포인터
     WINDOW *scoreboard_window; // Score Board (미션 정보 설명)을 출력한는 ncurses window 포인터
     WINDOW *mission_window; // 미션 목표 및 현재 점수를 출력하는 ncurses window
     int map_scale; // 게임 맵의 크기를 설정하는 설정값
+    int tickrate; // 1/(10 * tickrate) 초당 tick 횟수
 };
 
 # endif

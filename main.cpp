@@ -196,7 +196,7 @@ int main(void) {
   GameState gs(GAME_WIDTH, GAME_HEIGHT, &level_1);
   Level* levels[4] = {nullptr, &level_2, &level_3, &level_4};
   int current_level = 0;
-  Render render(&gs, 2);
+  Render render(&gs, 2, TICK);
   bool keep_running = true;
   while(keep_running) {
     bool tickResult = gs.tick();
@@ -236,6 +236,10 @@ int main(void) {
     }
   }
   
+  render.gameover();
+  nocbreak();
+  getch();
+
   endwin();
   gs.print_debug_info();
   std::cout << "Game Over\n";
